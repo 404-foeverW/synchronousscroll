@@ -42,6 +42,7 @@ onMounted(() => {
     data: editDatakey(createSignlrMockData().dataList)
   }
   scrollDate.value = [scrollDateO.value, scrollDateT.value, scrollDateW.value];
+  console.log(scrollDate.value);
 })
 </script>
 

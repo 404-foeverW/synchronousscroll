@@ -1,7 +1,7 @@
 <template>
     <div class="main_scroll">
         <div class="synchronized-scrolling">
-            <div class="table-wrapper right-wrapper" v-for="(item, index) in scrollDate" :key="index">
+            <div class="table-wrapper right-wrapper" v-for="(item, index) in props.scrollDate" :key="index">
             <!-- 表头区域 -->
                 <div class="grid-header">
                     <div class="grid-row header-row">
@@ -13,14 +13,7 @@
                 <div class="grid-body" id="grid-body" ref="centerScrollEl" @scroll="onScroll">
                     <!-- 数据将由 JS 插入这里 -->
                     <div class="grid-row header-row" v-for="(list, listIndex) in item.data" :key="listIndex">
-                        <div class="grid-cell">{{ list[`data_${listIndex}`] }}</div>
-                        <div class="grid-cell">{{ item.name }}</div>
-                        <div class="grid-cell">{{ item.email }}</div>
-                        <div class="grid-cell">{{ item.date }}</div>
-                        <div class="grid-cell">{{ item.sex ? '男' : '女'}}</div>
-                        <div class="grid-cell">{{ item.paragraph }}</div>
-                        <div class="grid-cell">{{ item.number }}</div>
-                        <div class="grid-cell">{{ item.boolean ? '升高' : '降低'}}</div>
+                        <div class="grid-cell" v-for="(key, indexKey) in list.keys" :key="indexKey">{{ list[key] }}</div>
                     </div>
                 </div>
             </div>
@@ -28,10 +21,17 @@
     </div>
 </template>
 <script setup>
-import { userScroll } from '@/hook/scroll';
-import { createMockData, createSignlrMockData } from '@/utils/mock';
-import { onMounted, onUnmounted, ref } from 'vue';
-let props = defineProps({
+// import { userScroll } from '@/hook/scroll';
+// import { createMockData, createSignlrMockData } from '@/utils/mock';
+// import { onMounted, onUnmounted, ref } from 'vue';
+import { onMounted, onUnmounted, defineProps, ref } from 'vue';
+
+// tableOverflow: 1 平分 2 不平分，最大width的自适应
+const tableOverflow = ref(1);
+const ROW_WIDTH = 60;
+const maxRowNum = ref(0);
+// const MAX_DIFF_NUM = 7;
+const props = defineProps({
     scrollDate: {
         type: Array,
         default: () => []
@@ -41,22 +41,42 @@ let props = defineProps({
         default: 1
     }
 })
-let data = ref([]);
-let leftData = ref([]);
-let rightScrollEl = ref(null);
-let centerScrollEl = ref(null);
-const SCROLL_THROTTLE_TIME = 16;
+// let data = ref([]);
+// let leftData = ref([]);
+// let rightScrollEl = ref(null);
+// let centerScrollEl = ref(null);
+// const SCROLL_THROTTLE_TIME = 16;
 
-const { clearScroll, initScroll, onScroll} = userScroll();
-initScroll([rightScrollEl, centerScrollEl], SCROLL_THROTTLE_TIME);
+// const { clearScroll, initScroll, onScroll} = userScroll();
+// initScroll([rightScrollEl, centerScrollEl], SCROLL_THROTTLE_TIME);
+function getMaxNum() {
+    let viewWidth = document.body.clientWidth;
+    maxRowNum.value = Math.floor(viewWidth / ROW_WIDTH);
+}
+function getOverflowBool() {
+    let trunthRowNum = 0;
+    let tableRowNum = [];
+    props.scrollDate.forEach(item => {
+        let num = item.headerDate.length + item.data[0].keyNum;
+        tableRowNum.push(num);
+        trunthRowNum = trunthRowNum + num;
+    })
+    if(trunthRowNum >= maxRowNum.value) {
+        tableOverflow.value = 1;
+    }else {
+        // 考虑是否将各个表格的宽度不平分情况
+    }
+}
 
 onMounted(() => {
-    data.value = createMockData().dataList;
-    leftData.value = createSignlrMockData().dataList;
+    // data.value = createMockData().dataList;
+    // leftData.value = createSignlrMockData().dataList;
+    getMaxNum();
+    getOverflowBool();
 })
 onUnmounted(() => {
     // targetScroll.value = null;
-    clearScroll();
+    // clearScroll();
 })
 </script>
 <style lang="less" scoped>
@@ -76,12 +96,15 @@ body {
     background-color: @bg-color;
     font-family: sans-serif;
 }
+.main_scroll {
+    margin: 0 20px;
+}
 
 // 外层容器：Flex 布局
 .synchronized-scrolling {
     display: flex;
     width: 100%;
-    max-width: 1200px;
+    // max-width: 1200px;
     margin: 0 auto;
     background-color: @table-bg;
     border: 1px solid @border-color;
@@ -115,7 +138,8 @@ body {
 
 // 右侧容器特定样式
 .right-wrapper {
-    flex: 1; // 占据剩余宽度
+    width: fit-content;
+    // flex: 1; // 占据剩余宽度
     min-width: 0; // 防止内容撑开 Flex 容器
 }
 
@@ -145,8 +169,10 @@ body {
     border-bottom: 1px solid @border-color;
     flex-shrink: 0; // 防止表头被压缩
     padding-right: @scrollbar-width;
+    height: 50px;
     .header-row {
-        display: contents;
+        // display: contents;
+        display: flex
     }
 }
 
@@ -181,6 +207,8 @@ body {
 
 // 单元格通用样式
 .grid-cell {
+    width: 80px;
+    max-width: 120px;
     height: @row-height; // 关键：固定高度确保对齐
     display: flex;
     align-items: center;
@@ -193,7 +221,7 @@ body {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    flex: 1;
+    // flex: 1;
     &:last-child {
         border-right: none;
     }

@@ -86,11 +86,12 @@ function editDatakey(arr) {
     let obj = {};
     // 获取当前对象的所有属性名
     let keys = Object.keys(item);
+    obj = {...item, keys: keys, keyNum: keys.length};
     // 遍历所有属性名
-    keys.forEach((key, index) => {
+    // keys.forEach((key, index) => {
       // 将属性名修改为"属性名_索引"的形式，并赋值给新对象
-        obj[`data_${index}`] = item[key];
-    });
+        // obj[`data_${index}`] = item[key];
+    // });
     // 将处理后的对象添加到新数组中
     newArr.push(obj);
   });
