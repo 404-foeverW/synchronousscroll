@@ -65,11 +65,16 @@ function getOverflowBool() {
         tableOverflow.value = 1;
     }else {
         // 考虑是否将各个表格的宽度不平分情况
-        // 多个固定宽度多个横向滚动
-        // 单个固定多个横向滚动
-        // 全部为固定
+        // tableAllocation(trunthRowNum, tableRowNum);
+        // tableAllocation
     }
 }
+
+// function tableAllocation(rownum, rowNumArr) {
+    // 多个固定宽度多个横向滚动
+    // 单个固定多个横向滚动
+    // 全部为固定
+// }
 
 onMounted(() => {
     // data.value = createMockData().dataList;

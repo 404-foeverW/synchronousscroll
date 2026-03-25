@@ -32,10 +32,14 @@ const signletemplate = {
     }]
 }
 function createMockData() {
-    return mock.mock(template);
+    let result = mock.mock(template);
+    console.log(JSON.stringify(result));
+    return result;
 }
 function createSignlrMockData() {
-    return mock.mock(signletemplate);
+    let result = mock.mock(signletemplate);
+    console.log(JSON.stringify(result));
+    return result;
 }
 // export default createMockData;
 export {
